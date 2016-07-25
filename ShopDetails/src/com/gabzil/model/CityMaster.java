@@ -1,18 +1,18 @@
 package com.gabzil.model;
 
 public class CityMaster {
-	private int cityID;
-	private String city;
+	private int CityID;
+	private String City;
 	public int getCityID() {
-		return cityID;
+		return CityID;
 	}
 	public void setCityID(int cityID) {
-		this.cityID = cityID;
+		this.CityID = cityID;
 	}
 	public String getCity() {
-		return city;
+		return City;
 	}
 	public void setCity(String city) {
-		this.city = city;
+		this.City = city;
 	}	
 }

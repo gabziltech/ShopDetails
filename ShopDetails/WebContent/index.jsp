@@ -8,7 +8,8 @@
 </head>
 <body>
 <h1><b>Shop Details</b></h1>
-<a href="http://localhost:8080/ShopDetails/retail/WebService/GetShop">Get Service</a> <br><br>
-<a href="http://localhost:8080/ShopDetails/retail/WebService/InsertShop" >Insert Service</a> <br><br>
+<a href="http://localhost:8080/ShopDetails/retail/WebService/InsertShop" >Insert Shop</a> <br><br>
+<a href="http://localhost:8080/ShopDetails/retail/WebService/DeleteUser" >Delete User</a> <br><br>
+<a href="http://localhost:8080/ShopDetails/retail/WebService/Sync" >Sync Data</a> <br><br>
 </body>
 </html>

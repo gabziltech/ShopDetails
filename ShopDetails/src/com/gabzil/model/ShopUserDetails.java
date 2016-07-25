@@ -6,6 +6,7 @@ public class ShopUserDetails {
 	private int ShopID;
 	private String MobileNo;
 	private String UserName;
+	private String UserType;
 	private String City;
 	private String ShopName;
 	private String Pincode;
@@ -64,5 +65,11 @@ public class ShopUserDetails {
 	}
 	public void setAddress(String address) {
 		Address = address;
+	}
+	public String getUserType() {
+		return UserType;
+	}
+	public void setUserType(String userType) {
+		UserType = userType;
 	}
 }

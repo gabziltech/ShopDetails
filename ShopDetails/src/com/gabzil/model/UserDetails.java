@@ -6,15 +6,11 @@ public class UserDetails {
     private int UserID;
 	private int ShopID;
 	private String UserName;
+	private String UserType;
 	private String MobileNo;
-	private boolean ISActive;
+	private boolean IsActive;
 	private Timestamp EntryDate;
 	
-	@Override
-	public String toString() {
-		return "UserDetails [UserID=" + UserID + ", ShopID=" + ShopID + ", UserName=" + UserName + ", MobileNo="
-				+ MobileNo + ", ISActive=" + ISActive + ", EntryDate=" + EntryDate + "]";
-	}
 	public int getUserID() {
 		return UserID;
 	}
@@ -33,22 +29,29 @@ public class UserDetails {
 	public void setUserName(String userName) {
 		UserName = userName;
 	}
+	public String getUserType() {
+		return UserType;
+	}
+	public void setUserType(String userType) {
+		UserType = userType;
+	}
 	public String getMobileNo() {
 		return MobileNo;
 	}
 	public void setMobileNo(String mobileNo) {
 		MobileNo = mobileNo;
 	}
-	public boolean isISActive() {
-		return ISActive;
-	}
-	public void setISActive(boolean iSActive) {
-		ISActive = iSActive;
-	}
+	
 	public Timestamp getEntryDate() {
 		return EntryDate;
 	}
 	public void setEntryDate(Timestamp entryDate) {
 		EntryDate = entryDate;
+	}
+	public boolean getIsActive() {
+		return IsActive;
+	}
+	public void setIsActive(boolean isActive) {
+		IsActive = isActive;
 	}
 }

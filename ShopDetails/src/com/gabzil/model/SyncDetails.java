@@ -3,7 +3,7 @@ package com.gabzil.model;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-public class ShopsDetails {
+public class SyncDetails {
 	private int ShopID;
 	private String ShopName;
 	private String Address;
@@ -16,7 +16,6 @@ public class ShopsDetails {
 	private Timestamp EntryDate;
 	private ArrayList<UserDetails> AllUser;
 	private ArrayList<CustomerDetails> AllCustomer;
-	
 	public int getShopID() {
 		return ShopID;
 	}
@@ -88,5 +87,6 @@ public class ShopsDetails {
 	}
 	public void setAllCustomer(ArrayList<CustomerDetails> allCustomer) {
 		AllCustomer = allCustomer;
-	}		
+	}
+	
 }
