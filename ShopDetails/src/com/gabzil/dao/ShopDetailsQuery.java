@@ -5,7 +5,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Random;
 
+import com.gabzil.model.CodeDetails;
 import com.gabzil.model.ContactDetails;
 import com.gabzil.model.CustomerDetails;
 import com.gabzil.model.ShopUserDetails;
@@ -27,7 +29,8 @@ public class ShopDetailsQuery {
 	String from = "2565705836";
 	String msg = null;
 	SMSSender smsobj;
-	String shopName;
+
+	
 
 	public ShopDetailsQuery() {
 		try {
@@ -59,6 +62,8 @@ public class ShopDetailsQuery {
 				ps.setString(2, shop.getAddress());
 				ps.setString(3, shop.getCity());
 				ps.setString(4, shop.getPincode());
+				
+				//ps.setInt(5, code);
 				ps.executeUpdate();								
 			}
 			dbshop = getDBShop(shop);
@@ -80,6 +85,7 @@ public class ShopDetailsQuery {
 			ps.setString(2, shop.getAddress());
 			ps.setString(3, shop.getCity());
 			ps.setString(4, shop.getPincode());
+		//	ps.setInt(5, code);
 
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
@@ -88,6 +94,7 @@ public class ShopDetailsQuery {
 				dbshop.setAddress(rs.getString("Address"));
 				dbshop.setCity(rs.getString("City"));
 				dbshop.setPincode(rs.getString("Pincode"));
+				//dbshop.setShopUID(rs.getInt("ShopUID"));
 				shop.setShopID(dbshop.getShopID());
 				putUserData(shop);
 				setAllUser(dbshop);
@@ -97,6 +104,7 @@ public class ShopDetailsQuery {
 			throw e;
 		}
 	}
+	
 
 	private boolean putUserData(ShopsDetails shop) throws Exception {
 		UserDetails shoper;
@@ -117,8 +125,8 @@ public class ShopDetailsQuery {
 					new Thread(new Runnable() {
 						public void run() {
 							to = shop.getAllUser().get(j).getMobileNo();
-							msg = "From:" + shopName + '\n' + "Dear:" + shop.getAllUser().get(j).getUserName() + '\n'
-									+ "are you successully updated, your record with our shop.";
+							msg = "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
+									+ "You have successully updated your record."+"\nFrom: " + shop.getShopName();
 							smsobj = new SMSSender(to, from, msg);
 							smsobj.sender();
 						}
@@ -129,16 +137,23 @@ public class ShopDetailsQuery {
 							"insert into RT_UsersDetails(ShopID, UserName, UserType, MobileNo, IsActive) VALUES (?,?,?,?,?)");
 					ps.setInt(1, shop.getShopID());
 					ps.setString(2, shoper.getUserName());
+					
 					ps.setString(3, shoper.getUserType());
 					ps.setString(4, shoper.getMobileNo());
 					ps.setBoolean(5, shoper.getIsActive());
 					ps.executeUpdate();
-
+					 UserDetails use= getUserID(shop.getShopID(), shoper);
+					int code=CodeData(use);
+					if(shoper.getUserType().equalsIgnoreCase("Owner")){
+					       if(checkUser(shop.getShopID())<=1){
+					    	   setShopUserID(use);
+					       }
+					}
 					new Thread(new Runnable() {
 						public void run() {
 							to = shop.getAllUser().get(j).getMobileNo();
-							msg = "From:" + shopName + '\n' + "Dear:" + shop.getAllUser().get(j).getUserName() + '\n'
-									+ "are you successully register with our shop.";
+							msg =  "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
+									+ "You have successully registered with our shop.\n"+" Verification Code is : "+code+" for sync the data.\nFrom: " + shop.getShopName();
 							smsobj = new SMSSender(to, from, msg);
 							smsobj.sender();
 						}
@@ -146,14 +161,114 @@ public class ShopDetailsQuery {
 				}
 
 			}
-
+            
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
 	}
+	
+	
+	private UserDetails getUserID(int shopid, UserDetails data) throws Exception {		
+		try {
+			UserDetails user = new UserDetails();
+			ps = con.prepareStatement("SELECT UserID, ShopID FROM RT_UsersDetails where ShopID=? AND UserName=? AND MobileNo=? AND UserType=?");
+			ps.setInt(1, shopid);
+			ps.setString(2, data.getUserName());
+			ps.setString(3, data.getMobileNo());
+			ps.setString(4, data.getUserType());
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				user.setUserID(rs.getInt("UserID"));
+				user.setShopID(rs.getInt("ShopID"));					
+			}
+			return user;
+		} catch (Exception e) {		
+			throw e;
+		}
+	}
+	
+	private int CodeData(UserDetails user){
+		try{
+			int code=codeGenerator();
+			ps=con.prepareStatement("INSERT INTO RT_CodeDetails(ShopID, UserID, Code) VALUES(?,?,?)");
+			ps.setInt(1, user.getShopID());
+			ps.setInt(2, user.getUserID());
+			ps.setInt(3, code);
+			ps.executeUpdate();
+			return code;
+		}catch(Exception e){
+			e.printStackTrace();
+			return 0;
+		}
+	}
+	
+	private int codeGenerator() {
+		Random rand = new Random();
+		return 1000 + rand.nextInt((9999- 1000) + 1);
+        
+	}
+	
+	private int checkUser(int shopid) throws Exception {
+		int count=0;
+		try {
+			ps = con.prepareStatement("SELECT UserID, ShopID, UserType, UserName, MobileNo, IsActive FROM RT_UsersDetails where ShopID=?");
+			ps.setInt(1, shopid);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				UserDetails user = new UserDetails();
+				user.setUserID(rs.getInt("UserID"));
+				user.setShopID(rs.getInt("ShopID"));
+				user.setUserType(rs.getString("UserType"));
+				user.setUserName(rs.getString("UserName"));
+				user.setMobileNo(rs.getString("MobileNo"));
+				user.setIsActive(rs.getBoolean("IsActive"));
+				if(rs.getString("UserType").equalsIgnoreCase("Owner"))
+				   count++;
+			}
+			return count;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 
+	public ShopsDetails getCodeVerify(int code){
+		int shopid=0,userid=0;
+		try{
+			ps=con.prepareStatement("SELECT ShopID, UserID from RT_CodeDetails WHERE Code=?");
+			ps.setInt(1, code);
+			rs=ps.executeQuery();
+			while(rs.next()){
+				CodeDetails coder=new CodeDetails();		
+					coder.setShopID(rs.getInt("ShopID"));
+					coder.setUserID(rs.getInt("UserID"));				
+					shopid=coder.getShopID();
+				    userid=coder.getUserID();
+				    //setShopUserID(coder);
+			}
+			if(shopid==0)
+				return null;
+			else 
+			    return getShopSync(shopid);
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	private void setShopUserID(UserDetails user){
+		try{
+			ps=con.prepareStatement("UPDATE RT_ShopsDetails set UserID=? WHERE ShopID=?");
+			ps.setInt(1,user.getUserID());
+			ps.setInt(2,user.getShopID());
+			ps.executeUpdate();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public int deleteUser(ShopsDetails shop){
 		UserDetails user;
 		int result=0;
@@ -163,13 +278,13 @@ public class ShopDetailsQuery {
 			 user=shop.getAllUser().get(i);
 			ps=con.prepareStatement("delete from RT_UsersDetails  where UserID=? AND ShopID=?");
 			ps.setInt(1, user.getUserID());
-			ps.setInt(2, shop.getShopID());
+			ps.setInt(2, user.getShopID());
 			result=ps.executeUpdate();	
 			new Thread(new Runnable() {
 				public void run() {
 					to = shop.getAllUser().get(j).getMobileNo();
-					msg = "From:" + shopName + '\n' + "Dear:" + shop.getAllUser().get(j).getUserName() + '\n'
-							+ "are you successully deleted with our shop.";
+					msg = "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
+							+ "You have successully deleted with our shop."+"\nFrom: " + shop.getShopName();
 					smsobj = new SMSSender(to, from, msg);
 					smsobj.sender();
 				}
@@ -183,16 +298,22 @@ public class ShopDetailsQuery {
 		
 	}
 	
+
+		
+
 	
-	public ShopsDetails getShopSync(int shopid) throws Exception {
+	
+	
+	public ShopsDetails getShopSync(int shop) throws Exception {
 		ShopsDetails syncData = new ShopsDetails();
 		try {
 			ps = con.prepareStatement(
-					"SELECT ShopID,ShopName,Address,City,Pincode,EntryDate FROM RT_ShopsDetails where ShopID=?");
-			ps.setInt(1, shopid);
+					"SELECT ShopID,UserID,ShopName,Address,City,Pincode,EntryDate FROM RT_ShopsDetails where ShopID=?");
+			ps.setInt(1, shop);
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				syncData.setShopID(rs.getInt("ShopID"));
+				syncData.setUserID(rs.getInt("UserID"));
 				syncData.setShopName(rs.getString("ShopName"));
 				syncData.setAddress(rs.getString("Address"));
 				syncData.setCity(rs.getString("City"));
@@ -236,21 +357,24 @@ public class ShopDetailsQuery {
 		ArrayList<CustomerDetails> customerData = new ArrayList<CustomerDetails>();
 		try {
 			ps = con.prepareStatement(
-					"SELECT CustomerID,ShopID,CustomerName,Address,Building,Area,City,Amount,CreditDays,EntryDate FROM RT_CustomerDetails where ShopID=?");
+					"SELECT CustomerID,ShopID,ShopName,CustomerName,Address,Building,Area,City,Amount,OutStanding,CreditDays,EntryDate,IsActive FROM RT_CustomerDetails where ShopID=?");
 			ps.setInt(1, syncData.getShopID());
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				CustomerDetails customer = new CustomerDetails();
 				customer.setCustomerID(rs.getInt("CustomerID"));
 				customer.setShopID(rs.getInt("ShopID"));
+				customer.setShopName(rs.getString("ShopName"));
 				customer.setCustomerName(rs.getString("CustomerName"));
 				customer.setAddress(rs.getString("Address"));
 				customer.setBuilding(rs.getString("Building"));
 				customer.setArea(rs.getString("Area"));
 				customer.setCity(rs.getString("City"));
 				customer.setAmount(rs.getString("Amount"));
+				customer.setOutStanding(rs.getString("OutStanding"));
 				customer.setCreditDays(rs.getString("CreditDays"));
 				customer.setEntryDate(rs.getTimestamp("EntryDate"));
+				customer.setIsActive(rs.getBoolean("IsActive"));
 				setAllContact(customer);
 				customerData.add(customer);
 
@@ -287,50 +411,51 @@ public class ShopDetailsQuery {
 	
 	
 	
-	public ShopsDetails getData(int id) throws Exception {
-		ShopsDetails shop = new ShopsDetails();
-		try {
-			ps = con.prepareStatement(
-					"SELECT ShopID,ShopName,Address,City,Pincode,PhoneNo,GeoLocLong,GeoLocLat,PointsBalance,EntryDate FROM RT_ShopsDetails where ShopID=?");
-			ps.setInt(1, id);
-			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				shop.setShopID(rs.getInt("ShopID"));
-				shop.setShopName(rs.getString("ShopName"));
-				shop.setAddress(rs.getString("Address"));
-				shop.setCity(rs.getString("City"));
-				shop.setPincode(rs.getString("Pincode"));
-				shop.setPhoneNo(rs.getString("PhoneNo"));
-				shop.setGeoLocLong(rs.getString("GeoLocLong"));
-				shop.setGeoLocLat(rs.getString("GeoLocLat"));
-				shop.setPointsBalance(rs.getDouble("PointsBalance"));
-				shop.setEntryDate(rs.getTimestamp("EntryDate"));
-			}
-
-		} catch (Exception e) {
-			throw e;
-		}
-
-		ArrayList<UserDetails> userData = new ArrayList<UserDetails>();
-		try {
-			ps = con.prepareStatement("SELECT ShopID,UserName,UserType,MobileNo FROM RT_UsersDetails where ShopID=?");
-			ps.setInt(1, id);
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				UserDetails user = new UserDetails();
-				user.setShopID(rs.getInt("ShopID"));
-				user.setUserName(rs.getString("UserName"));
-				user.setUserType(rs.getString("UserType"));
-				user.setMobileNo(rs.getString("MobileNo"));
-				userData.add(user);
-			}
-			shop.setAllUser(userData);
-			return shop;
-		} catch (Exception e) {
-			throw e;
-		}
-	}
-
+//	public ShopsDetails getData(int id) throws Exception {
+//		ShopsDetails shop = new ShopsDetails();
+//		try {
+//			ps = con.prepareStatement(
+//					"SELECT ShopID,ShopName,Address,City,Pincode,PhoneNo,GeoLocLong,GeoLocLat,PointsBalance,EntryDate FROM RT_ShopsDetails where ShopID=?");
+//			ps.setInt(1, id);
+//			ResultSet rs = ps.executeQuery();
+//			while (rs.next()) {
+//				shop.setShopID(rs.getInt("ShopID"));
+//				shop.setShopName(rs.getString("ShopName"));
+//				shop.setAddress(rs.getString("Address"));
+//				shop.setCity(rs.getString("City"));
+//				shop.setPincode(rs.getString("Pincode"));
+//				shop.setPhoneNo(rs.getString("PhoneNo"));
+//				shop.setGeoLocLong(rs.getString("GeoLocLong"));
+//				shop.setGeoLocLat(rs.getString("GeoLocLat"));
+//				shop.setPointsBalance(rs.getDouble("PointsBalance"));
+//				shop.setEntryDate(rs.getTimestamp("EntryDate"));
+//			}
+//
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//
+//		ArrayList<UserDetails> userData = new ArrayList<UserDetails>();
+//		try {
+//			ps = con.prepareStatement("SELECT ShopID,UserName,UserType,MobileNo FROM RT_UsersDetails where ShopID=?");
+//			ps.setInt(1, id);
+//			rs = ps.executeQuery();
+//			while (rs.next()) {
+//				UserDetails user = new UserDetails();
+//				user.setShopID(rs.getInt("ShopID"));
+//				user.setUserName(rs.getString("UserName"));
+//				user.setUserType(rs.getString("UserType"));
+//				user.setMobileNo(rs.getString("MobileNo"));
+//				userData.add(user);
+//			}
+//			shop.setAllUser(userData);
+//			return shop;
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//	}
+//
+//	
 	public ArrayList<ShopUserDetails> getShopUserData(int id) throws Exception {
 		ArrayList<ShopUserDetails> data = new ArrayList<ShopUserDetails>();
 		try {
@@ -375,5 +500,6 @@ public class ShopDetailsQuery {
 	//
 	// return getShopSync(shopid);
 	// }
+	
 
 }

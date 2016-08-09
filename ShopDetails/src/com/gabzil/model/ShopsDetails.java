@@ -9,10 +9,7 @@ public class ShopsDetails {
 	private String Address;
 	private String City;
 	private String Pincode;
-	private String PhoneNo;
-	private String GeoLocLong;
-	private String GeoLocLat;
-	private Double PointsBalance;
+	private int UserID;
 	private Timestamp EntryDate;
 	private ArrayList<UserDetails> AllUser;
 	private ArrayList<CustomerDetails> AllCustomer;
@@ -47,30 +44,6 @@ public class ShopsDetails {
 	public void setPincode(String pincode) {
 		Pincode = pincode;
 	}
-	public String getPhoneNo() {
-		return PhoneNo;
-	}
-	public void setPhoneNo(String phoneNo) {
-		PhoneNo = phoneNo;
-	}
-	public String getGeoLocLong() {
-		return GeoLocLong;
-	}
-	public void setGeoLocLong(String geoLocLong) {
-		GeoLocLong = geoLocLong;
-	}
-	public String getGeoLocLat() {
-		return GeoLocLat;
-	}
-	public void setGeoLocLat(String geoLocLat) {
-		GeoLocLat = geoLocLat;
-	}
-	public Double getPointsBalance() {
-		return PointsBalance;
-	}
-	public void setPointsBalance(Double pointsBalance) {
-		PointsBalance = pointsBalance;
-	}
 	public Timestamp getEntryDate() {
 		return EntryDate;
 	}
@@ -88,5 +61,11 @@ public class ShopsDetails {
 	}
 	public void setAllCustomer(ArrayList<CustomerDetails> allCustomer) {
 		AllCustomer = allCustomer;
-	}		
+	}
+	public int getUserID() {
+		return UserID;
+	}
+	public void setUserID(int userID) {
+		UserID = userID;
+	}
 }

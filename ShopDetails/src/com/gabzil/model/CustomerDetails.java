@@ -4,18 +4,21 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class CustomerDetails {
-	private int CustomerID;
 	private int ShopID;
+	private int CustomerID;
+	private String ShopName;
 	private String CustomerName;
+	private boolean IsActive;
 	private String Address;
 	private String Building;
 	private String Area;
 	private String City;
 	private String Amount;
 	private String CreditDays;
-	private ArrayList<ContactDetails> AllContact; 
+	private String OutStanding;
 	private Timestamp EntryDate;
-	private String ShopName;
+	private ArrayList<ContactDetails> AllContact; 
+	
 	public int getCustomerID() {
 		return CustomerID;
 	}
@@ -88,6 +91,18 @@ public class CustomerDetails {
 	}
 	public void setCreditDays(String creditDays) {
 		CreditDays = creditDays;
+	}
+	public boolean getIsActive() {
+		return IsActive;
+	}
+	public void setIsActive(boolean isActive) {
+		IsActive = isActive;
+	}
+	public String getOutStanding() {
+		return OutStanding;
+	}
+	public void setOutStanding(String outStanding) {
+		OutStanding = outStanding;
 	}
 	
 }

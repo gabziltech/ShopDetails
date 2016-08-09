@@ -31,9 +31,10 @@ public class ShopsDetailService {
 		ShopsDetails result;
 		try {
 			//String ShopInfo="{\"ShopInfo\":{\"ShopID\":1}}";
-			//String info="{\"Address\":\"pppppp\",\"AllUser\":[{\"MobileNo\":\"8087423008\",\"UserName\":\"poiu\",\"UserType\":\"staff\",\"UserID\":8,\"ShopID\":7}],\"City\":\"vardha\",\"Pincode\":\"467864589\",\"ShopName\":\"Tuo7\",\"ShopID\":7}";
+			//String info="{\"Address\":\"pppppp\",\"AllUser\":[{\"MobileNo\":\"8087423008\",\"UserName\":\"poiu\",\"UserType\":\"staff\",\"UserID\":8,\"ShopID\":7}],\"City\":\"vardha\",\"Pincode\":\"467864589\",\"ShopName\":\"Tuo7\",\"ShopID\":0}";
 			//String out = new String(info.getBytes("UTF-8"));
-			//String info="{\"Address\":\"ABC\",\"AllUser\":[{\"UserType\":\"Owner\",\"MobileNo\":\"0123456789\",\"UserName\":\"Prashant\",\"UserID\":0,\"ShopID\":7,\"IsActive\":true}],\"City\":\"Pune\",\"Pincode\":\"123456\",\"ShopName\":\"Yogi\",\"ShopID\":7}";
+			//String info="{\"Address\":\"ABC\",\"AllUser\":[{\"UserType\":\"owner\",\"MobileNo\":\"8087423008\",\"UserName\":\"Prashant\",\"UserID\":0,\"ShopID\":0,\"IsActive\":true}],\"City\":\"Pune\",\"Pincode\":\"123456\",\"ShopName\":\"Yogi\",\"ShopID\":8}";
+			System.out.println("\n*******************INSERT SHOP**********************\n");
 			System.out.println(info);
 			
 			ShopsDetails data = gson.fromJson(info, ShopsDetails.class);
@@ -61,7 +62,8 @@ public class ShopsDetailService {
 			//String ShopInfo="{\"ShopInfo\":{\"ShopID\":1}}";
 			//String info="{\"Address\":\"pppppp\",\"AllUser\":[{\"MobileNo\":\"8087423008\",\"UserName\":\"poiu\",\"UserType\":\"staff\",\"UserID\":8,\"ShopID\":7}],\"City\":\"vardha\",\"Pincode\":\"467864589\",\"ShopName\":\"Tuo7\",\"ShopID\":7}";
 			//String out = new String(info.getBytes("UTF-8"));
-			//String info="{\"Address\":\"ABC\",\"AllUser\":[{\"UserType\":\"Owner\",\"MobileNo\":\"0123456789\",\"UserName\":\"Prashant\",\"UserID\":13,\"ShopID\":9,\"IsActive\":true}],\"City\":\"Pune\",\"Pincode\":\"123456\",\"ShopName\":\"Yogi\",\"ShopID\":9}";
+			//String info="{\"Address\":\"ABC\",\"AllUser\":[{\"UserType\":\"Staff\",\"MobileNo\":\"0123456789\",\"UserName\":\"Prashant\",\"UserID\":13,\"ShopID\":9,\"IsActive\":true}],\"City\":\"Pune\",\"Pincode\":\"123456\",\"ShopName\":\"Yogi\",\"ShopID\":9}";
+			System.out.println("\n*******************DELETE SHOP**********************\n");
 			System.out.println(info);
 			
 			ShopsDetails data = gson.fromJson(info, ShopsDetails.class);
@@ -81,18 +83,41 @@ public class ShopsDetailService {
 	@POST
 	@Path("/Sync")
 	@Produces("application/json")
-	public String GetShopSync(String ShopUserInfo) {
+	public String GetShopSync(String str) {
 		String reply = null;
 		try {
 			ShopsDetails result = null;
-			//String ShopUserInfo="{\"ShopUserInfo\":{\"ShopID\":1}}";
-			System.out.println(ShopUserInfo);
+			//String str="{\"ShopInfo\":{\"ShopID\":8}}";
+			JSONObject obj = new JSONObject(str);
+			int shopid=obj.getJSONObject("ShopInfo").getInt("ShopID");
+			System.out.println("\n*******************SYNC SHOP**********************\n");
+			System.out.println(shopid);
 			
-			JSONObject obj = new JSONObject(ShopUserInfo);
-			int ShopID=obj.getJSONObject("ShopUserInfo").getInt("ShopID");
-			System.out.println(ShopID);
+			result = shop.getShopSync(shopid);
+			System.out.println(gson.toJson(result));
+			reply = gson.toJson(result);
+						
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return reply;		
+	}
+	
+
+	@POST
+	@Path("/Code")
+	@Produces("application/json")
+	public String CodeVerifivcation(String str) {
+		String reply = null;
+		try {
+			ShopsDetails result = null;
+			//String str="{\"ShopInfo\":{\"Code\":6595}}";
+			JSONObject obj = new JSONObject(str);
+			int code=obj.getJSONObject("ShopInfo").getInt("Code");
+			System.out.println("\n*******************CODE VERIFY**********************\n");
+			System.out.println(code);
 			
-			result = shop.getShopSync(ShopID);
+			result = shop.getCodeVerify(code);
 			System.out.println(gson.toJson(result));
 			reply = gson.toJson(result);
 						

@@ -3,8 +3,8 @@ package com.gabzil.model;
 import java.sql.Timestamp;
 
 public class UserDetails {
-    private int UserID;
 	private int ShopID;
+	private int UserID;
 	private String UserName;
 	private String UserType;
 	private String MobileNo;
