@@ -87,7 +87,7 @@ public class ShopsDetailService {
 		String reply = null;
 		try {
 			ShopsDetails result = null;
-			//String str="{\"ShopInfo\":{\"ShopID\":8}}";
+			//String str="{\"ShopInfo\":{\"ShopID\":1}}";
 			JSONObject obj = new JSONObject(str);
 			int shopid=obj.getJSONObject("ShopInfo").getInt("ShopID");
 			System.out.println("\n*******************SYNC SHOP**********************\n");

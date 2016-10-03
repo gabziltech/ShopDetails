@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.gabzil.SMSSender;
 import com.gabzil.model.CodeDetails;
 import com.gabzil.model.ContactDetails;
 import com.gabzil.model.CustomerDetails;
@@ -14,7 +15,6 @@ import com.gabzil.model.ShopUserDetails;
 import com.gabzil.model.ShopsDetails;
 import com.gabzil.model.SyncDetails;
 import com.gabzil.model.UserDetails;
-import com.gabzil.sms.SMSSender;
 
 public class ShopDetailsQuery {
 	ShopsDetails shop;
@@ -25,13 +25,7 @@ public class ShopDetailsQuery {
 	RetailDB db;
 	Connection con;
 	int newid;
-	String to = null;
-	String from = "2565705836";
-	String msg = null;
-	SMSSender smsobj;
-
 	
-
 	public ShopDetailsQuery() {
 		try {
 
@@ -62,7 +56,6 @@ public class ShopDetailsQuery {
 				ps.setString(2, shop.getAddress());
 				ps.setString(3, shop.getCity());
 				ps.setString(4, shop.getPincode());
-				
 				//ps.setInt(5, code);
 				ps.executeUpdate();								
 			}
@@ -124,11 +117,11 @@ public class ShopDetailsQuery {
 					ps.executeUpdate();
 					new Thread(new Runnable() {
 						public void run() {
-							to = shop.getAllUser().get(j).getMobileNo();
-							msg = "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
+							String to = shop.getAllUser().get(j).getMobileNo();
+							String msg = "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
 									+ "You have successully updated your record."+"\nFrom: " + shop.getShopName();
-							smsobj = new SMSSender(to, from, msg);
-							smsobj.sender();
+							SMSSender smsobj = new SMSSender();
+							System.out.println(smsobj.sendSms(msg, to));	
 						}
 					}).start();
 				} else {
@@ -151,11 +144,11 @@ public class ShopDetailsQuery {
 					}
 					new Thread(new Runnable() {
 						public void run() {
-							to = shop.getAllUser().get(j).getMobileNo();
-							msg =  "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
+							String to = shop.getAllUser().get(j).getMobileNo();
+							String msg =  "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
 									+ "You have successully registered with our shop.\n"+" Verification Code is : "+code+" for sync the data.\nFrom: " + shop.getShopName();
-							smsobj = new SMSSender(to, from, msg);
-							smsobj.sender();
+							SMSSender smsobj = new SMSSender();
+							System.out.println(smsobj.sendSms(msg, to));	
 						}
 					}).start();
 				}
@@ -245,7 +238,7 @@ public class ShopDetailsQuery {
 					coder.setUserID(rs.getInt("UserID"));				
 					shopid=coder.getShopID();
 				    userid=coder.getUserID();
-				    //setShopUserID(coder);
+				    setShopUserID2(shopid,userid);
 			}
 			if(shopid==0)
 				return null;
@@ -268,6 +261,17 @@ public class ShopDetailsQuery {
 		}
 	}
 	
+	private void setShopUserID2(int shopid,int userid){
+		try{
+			ps=con.prepareStatement("UPDATE RT_ShopsDetails set UserID=? WHERE ShopID=?");
+			ps.setInt(1,userid);
+			ps.setInt(2,shopid);
+			ps.executeUpdate();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public int deleteUser(ShopsDetails shop){
 		UserDetails user;
@@ -282,11 +286,11 @@ public class ShopDetailsQuery {
 			result=ps.executeUpdate();	
 			new Thread(new Runnable() {
 				public void run() {
-					to = shop.getAllUser().get(j).getMobileNo();
-					msg = "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
+					String to = shop.getAllUser().get(j).getMobileNo();
+					String msg = "\nDear " + shop.getAllUser().get(j).getUserName() + ",\n"
 							+ "You have successully deleted with our shop."+"\nFrom: " + shop.getShopName();
-					smsobj = new SMSSender(to, from, msg);
-					smsobj.sender();
+					SMSSender smsobj = new SMSSender();
+					System.out.println(smsobj.sendSms(msg, to));	
 				}
 			}).start();
 			}

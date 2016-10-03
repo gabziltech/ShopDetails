@@ -11,17 +11,17 @@ public class RetailDB {
 	
 	public Connection getDBConnection() throws Exception {
 		try {
-			String connectionURL = "jdbc:mysql://127.0.0.1:3306/retail";
+			String connectionURL = "jdbc:mysql://1.8.7.198:3306/retaildb";
+			//String connectionURL = "jdbc:mysql://localhost:3306/retail";
 			Connection connection = null;
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			//connection = DriverManager.getConnection(connectionURL, "root", "root");
-			connection = DriverManager.getConnection(connectionURL, "root", "gabzil");
+		    //connection = DriverManager.getConnection(connectionURL, "root", "gabzil");
+			connection = DriverManager.getConnection(connectionURL, "gabzil", "gabzil@123");
 			return connection;
 		} catch (SQLException e) {
 			throw e;
 		} catch (Exception e) {
 			throw e;
 		}
-
 	}
 }
